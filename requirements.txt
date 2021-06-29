@@ -47,7 +47,7 @@ resampy==0.2.2
 rsa==4.7.2
 scikit-learn==0.24.2
 scipy==1.5.4
-setuptools==52.0.0.post20210125
+setuptools==52.0.0
 six==1.16.0
 SoundFile==0.10.3.post1
 tensorboard==2.5.0
