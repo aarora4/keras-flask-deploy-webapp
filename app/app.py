@@ -150,7 +150,7 @@ def predict():
 
 if __name__ == '__main__':
     portnum = int(os.environ.get("PORT", 5000))
-    app.run(app.run(host='0.0.0.0', port=portnum, threaded=True))
+    app.run(host='0.0.0.0', port=portnum, threaded=True)
     # app.run(threaded=True, port=process.env.PORT)
 
     # Serve the app with gevent
