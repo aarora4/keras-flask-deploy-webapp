@@ -11,6 +11,7 @@ fileDrag.addEventListener("dragleave", fileDragHover, false);
 fileDrag.addEventListener("drop", fileSelectHandler, false);
 fileSelect.addEventListener("change", fileSelectHandler, false);
 
+
 function fileDragHover(e) {
   // prevent default behaviour
   e.preventDefault();
@@ -31,12 +32,17 @@ function fileSelectHandler(e) {
 //========================================================================
 // Web page elements for functions to use
 //========================================================================
-
+var willHeText = document.getElementById("willhetext");
+var fileSuccess = document.getElementById("was-success");
+var forthissong = document.getElementById("forthissong");
+var justopinion = document.getElementById("justopinion");
+console.log(fileSuccess);
+var spinner = document.getElementById("spinner")
 var imagePreview = document.getElementById("image-preview");
 var imageDisplay = document.getElementById("image-display");
 var uploadCaption = document.getElementById("upload-caption");
 var predResult = document.getElementById("pred-result");
-var loader = document.getElementById("loader");
+// var loader = document.getElementById("loader");
 
 //========================================================================
 // Main button events
@@ -46,16 +52,21 @@ function submitImage() {
   // action for the submit button
   console.log("submit");
 
-  if (!imageDisplay.src || !imageDisplay.src.startsWith("data")) {
-    window.alert("Please select an image before submit.");
-    return;
+  // call the predict function of the backend
+  
+
+  if (globFile !== null) {
+    if (globFile.type == 'audio/wav') {
+      hide(fileSuccess)
+      show(spinner)
+      predictImage(globFile);
+    } else {
+      window.alert("Invalid File Type. Please submit a .wav file");
+    }
+  } else {
+    window.alert("Please upload a .wav file before submitting");
   }
 
-  loader.classList.remove("hidden");
-  imageDisplay.classList.add("loading");
-
-  // call the predict function of the backend
-  predictImage(imageDisplay.src);
 }
 
 function clearImage() {
@@ -67,52 +78,70 @@ function clearImage() {
   imageDisplay.src = "";
   predResult.innerHTML = "";
 
+  globFile = null
+
   hide(imagePreview);
   hide(imageDisplay);
-  hide(loader);
+  // hide(loader);
   hide(predResult);
   show(uploadCaption);
+  show(willhetext)
+  hide(justopinion)
+  hide(forthissong)
+
+  
 
   imageDisplay.classList.remove("loading");
 }
 
 function previewFile(file) {
   // show the preview of the image
+  console.log(file)
+  globFile = file;
   console.log(file.name);
   var fileName = encodeURI(file.name);
-
+  // console.log()
   var reader = new FileReader();
-  reader.readAsDataURL(file);
-  reader.onloadend = () => {
-    imagePreview.src = URL.createObjectURL(file);
+  imagePreview.innerText = fileName;
+  show(imagePreview);
+  hide(uploadCaption);
+  show(fileSuccess)
+  hide(willhetext)
 
-    show(imagePreview);
-    hide(uploadCaption);
-
-    // reset
-    predResult.innerHTML = "";
-    imageDisplay.classList.remove("loading");
-
-    displayImage(reader.result, "image-display");
-  };
 }
+var globFile = null;
 
 //========================================================================
 // Helper functions
 //========================================================================
 
 function predictImage(image) {
+  // console.log(image.blob)
+  var form = new FormData();
+  form.append('audio_file', image, "poopy.wav")
+  // "Content-Type": "multipart/form-data"
   fetch("/predict", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
     },
-    body: JSON.stringify(image)
+    body: form
   })
     .then(resp => {
       if (resp.ok)
         resp.json().then(data => {
-          displayResult(data);
+          // displayResult(data);
+          console.log(data.result[0]);
+          hide(spinner)
+
+          imageDisplay.src = './static/' + String(data.result[0]) + '.png'
+
+          if (imageDisplay.classList.contains('hidden')) {
+            show(imageDisplay)
+          }
+          
+          show(justopinion)
+          show(forthissong)
+
         });
     })
     .catch(err => {
@@ -131,7 +160,7 @@ function displayImage(image, id) {
 function displayResult(data) {
   // display the result
   // imageDisplay.classList.remove("loading");
-  hide(loader);
+  // hide(loader);
   predResult.innerHTML = data.result;
   show(predResult);
 }
