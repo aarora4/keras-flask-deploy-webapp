@@ -10,9 +10,9 @@ from gevent.pywsgi import WSGIServer
 import tensorflow as tf
 from tensorflow import keras
 
-from tensorflow.keras.applications.imagenet_utils import preprocess_input, decode_predictions
+# from tensorflow.keras.applications.imagenet_utils import preprocess_input, decode_predictions
 from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
+# from tensorflow.keras.preprocessing import image
 
 # Some utilites
 import numpy as np
@@ -38,11 +38,25 @@ app = Flask(__name__)
 # Model saved with Keras model.save()
 MODEL_PATH = 'models/your_model.h5'
 
+# graph = tf.get_default_graph()
+
 # Load your own trained model
 # model = load_model(MODEL_PATH)
 # model._make_predict_function()          # Necessary
-model = load_model("best_fantano_0")
+
+config = tf.ConfigProto(
+                intra_op_parallelism_threads=1,
+                allow_soft_placement=True
+            )
+session = tf.Session(config=config)
+
+keras.backend.set_session(session)
+
+model = load_model("best_fantano.h5", compile=False)
+model._make_predict_function()
 print('Model loaded. Start serving...')
+
+
 
 le = LabelEncoder()
 le.classes_ = np.load('static/classes.npy')
@@ -59,14 +73,23 @@ def model_predict(vector, model):
     # Be careful how your trained model deals with the input
     # otherwise, it won't make correct prediction!
     # x = preprocess_input(x, mode='tf')
-    # print(vector)
-    preds = model.predict([vector])
+    print([np.array(vector)][0])
 
+    try:
+        with session.as_default():
+                with session.graph.as_default():
+                    preds = model.predict(np.array([vector]))
+
+        
+        # print(preds)
+        # print(np.argmax(preds))
+        # print(le.inverse_transform([np.argmax(preds)]))
+                    return le.inverse_transform([np.argmax(preds)])
     
-    # print(preds)
-    # print(np.argmax(preds))
-    # print(le.inverse_transform([np.argmax(preds)]))
-    return le.inverse_transform([np.argmax(preds)])
+    except Exception as ex:
+        print(ex)
+
+    return [2.0]
 
 
 
