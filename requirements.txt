@@ -56,8 +56,8 @@ SoundFile==0.10.3.post1
 tensorboard==2.5.0
 tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.0
-tensorflow-cpu==2.5.0
-tensorflow-estimator==2.5.0
+tensorflow-cpu==1.5.0
+tensorflow-estimator==1.15.1
 termcolor==1.1.0
 threadpoolctl==2.1.0
 typing-extensions==3.7.4.3
