@@ -66,9 +66,10 @@ def extract_features_and_predict(path):
     # print(path)
 
     random_number = random.randint(00000, 99999)
-
+    print("does tmp exist?")
+    print(os.path.isdir('tmp'))
     filepath = './tmp/' + str(random_number) + '.wav'
-
+    print('got here borgor')
     wav_file = open(filepath, "wb")
     decode_string = b64decode(path)
     wav_file.write(decode_string)
