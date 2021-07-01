@@ -55,12 +55,12 @@ function submitImage() {
   
 
   if (globFile !== null) {
-    if (globFile.type == 'audio/wav') {
+    if (globFile.type.split('/')[0] == 'audio') {
       hide(fileSuccess)
       show(spinner)
       predictImage(globFile);
     } else {
-      window.alert("Invalid File Type. Please submit a .wav file");
+      window.alert("Invalid File Type. Please submit an audio file");
     }
   } else {
     window.alert("Please upload a .wav file before submitting");
