@@ -36,7 +36,6 @@ var willHeText = document.getElementById("willhetext");
 var fileSuccess = document.getElementById("was-success");
 var forthissong = document.getElementById("forthissong");
 var justopinion = document.getElementById("justopinion");
-console.log(fileSuccess);
 var spinner = document.getElementById("spinner")
 var imagePreview = document.getElementById("image-preview");
 var imageDisplay = document.getElementById("image-display");
@@ -128,19 +127,10 @@ function predictImage(image) {
   })
     .then(resp => {
       if (resp.ok)
-        resp.json().then(data => {
+        resp.json().then(response => {
           // displayResult(data);
-          console.log(data.result[0]);
-          hide(spinner)
-
-          imageDisplay.src = './static/' + String(data.result[0]) + '.png'
-
-          if (imageDisplay.classList.contains('hidden')) {
-            show(imageDisplay)
-          }
-          
-          show(justopinion)
-          show(forthissong)
+          // console.log(data)
+          get_status(response.data.taskID, displayResult);
 
         });
     })
@@ -157,12 +147,54 @@ function displayImage(image, id) {
   show(display);
 }
 
-function displayResult(data) {
+function displayResult(data, errors) {
   // display the result
   // imageDisplay.classList.remove("loading");
   // hide(loader);
-  predResult.innerHTML = data.result;
-  show(predResult);
+  // predResult.innerHTML = data.result;
+  // show(predResult);
+
+  hide(spinner)
+
+  imageDisplay.src = './static/' + String(data[0]) + '.png'
+
+  if (imageDisplay.classList.contains('hidden')) {
+    show(imageDisplay)
+  }
+  
+  show(justopinion)
+  show(forthissong)
+  
+}
+
+function get_status(taskID, funcToCall) {
+  $.ajax({
+      method: 'GET',
+      url: `tasks/${taskID}`
+  })
+      .done((response) => {
+          const taskStatus = response.data.taskStatus;
+
+          if (taskStatus === 'failed') {
+              console.log(response);
+              return false;
+          }
+          else if (taskStatus == 'finished') {
+              // Parse the returned JSON and return the link to the image.
+              console.log(response);
+
+              funcToCall(response.data.taskResult.result, response.data.taskResult.errors);
+              return false;
+          }
+
+          // If the task hasn't been finished, try again in 1 second.
+          setTimeout(function () {
+              get_status(response.data.taskID, funcToCall);
+          }, 1000);
+      })
+      .fail((error) => {
+          console.log(error);
+      });
 }
 
 function hide(el) {
