@@ -12,6 +12,9 @@ from tensorflow.keras.models import load_model
 import numpy as np
 
 import os
+import random
+
+from base64 import b64decode
 
 config = tf.ConfigProto(
                 intra_op_parallelism_threads=1,
@@ -60,8 +63,17 @@ def model_predict(vector, model):
     return [2.0]
 
 def extract_features_and_predict(path):
-    print(path)
-    x, sr = librosa.load(path)
+    # print(path)
+
+    random_number = random.randint(00000, 99999)
+
+    filepath = './tmp/' + str(random_number) + '.wav'
+
+    wav_file = open(filepath, "wb")
+    decode_string = b64decode(path)
+    wav_file.write(decode_string)
+    
+    x, sr = librosa.load(filepath)
     print('got here bor')
     rmse = librosa.feature.rms(y=x)
     chroma_stft = librosa.feature.chroma_stft(y=x, sr=sr)
@@ -90,7 +102,7 @@ def extract_features_and_predict(path):
     # Make prediction
     preds = model_predict(vect, model)
 
-    os.remove(path)
+    os.remove(filepath)
     # Process your result for human
     # pred_proba = "{:.3f}".format(np.amax(preds))    # Max probability
     # pred_class = decode_predictions(preds, top=1)   # ImageNet Decode

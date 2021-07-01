@@ -15,6 +15,8 @@ from rq import Queue
 from worker import conn
 import random
 
+from base64 import b64encode
+
 q = Queue(connection=conn) 
 
 # Declare a flask app
@@ -72,16 +74,10 @@ def predict():
     
     if request.method == 'POST':
         file = request.files['audio_file']
+        enc=b64encode(file.read())
+        print(enc)
 
-        random_number = random.randint(00000, 99999)
-
-        filepath = './tmp/' + str(random_number) + '.wav'
-
-        file.save(filepath)
-
-        
-
-        task = q.enqueue(extract_features_and_predict, filepath)
+        task = q.enqueue(extract_features_and_predict, enc)
 
         # create a dictionary with the ID of the task
         responseObject = {"status": "success", "data": {"taskID": task.get_id()}}
