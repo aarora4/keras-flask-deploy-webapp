@@ -75,7 +75,7 @@ def predict():
 
         random_number = random.randint(00000, 99999)
 
-        filepath = './tmp/' + str(random_number) + '.wav'
+        filepath = '/tmp/' + str(random_number) + '.wav'
 
         file.save(filepath)
 

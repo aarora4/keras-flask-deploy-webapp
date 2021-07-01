@@ -60,7 +60,7 @@ def model_predict(vector, model):
     return [2.0]
 
 def extract_features_and_predict(path):
-
+    print(path)
     x, sr = librosa.load(path)
     print('got here bor')
     rmse = librosa.feature.rms(y=x)
